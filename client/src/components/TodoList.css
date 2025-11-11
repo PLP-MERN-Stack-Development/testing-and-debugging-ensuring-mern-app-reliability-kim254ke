@@ -1,0 +1,138 @@
+.todo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .todo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease;
+  }
+  
+  .todo-item:hover {
+    transform: translateY(-2px);
+  }
+  
+  .todo-main {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+  }
+  
+  .todo-text h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+  }
+  
+  .todo-text p {
+    margin: 2px 0 0;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .completed .todo-text h3,
+  .completed .todo-text p {
+    text-decoration: line-through;
+    color: #999;
+  }
+  
+  .priority {
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-transform: capitalize;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  .priority.low {
+    background-color: #c6f6d5;
+    color: #276749;
+  }
+  
+  .priority.medium {
+    background-color: #faf089;
+    color: #744210;
+  }
+  
+  .priority.high {
+    background-color: #feb2b2;
+    color: #742a2a;
+  }
+  
+  .todo-actions button {
+    margin-left: 5px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .todo-actions button:hover {
+    opacity: 0.85;
+  }
+  
+  .todo-actions .delete {
+    background-color: #ff6b6b;
+    color: white;
+  }
+  
+  .todo-actions button:not(.delete) {
+    background-color: #667eea;
+    color: white;
+  }
+  
+  .edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+  
+  .edit-form input,
+  .edit-form textarea,
+  .edit-form select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-family: inherit;
+  }
+  
+  .edit-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .edit-buttons button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  
+  .edit-buttons .cancel {
+    background-color: #ff6b6b;
+    color: white;
+  }
+  
+  .edit-buttons button:not(.cancel) {
+    background-color: #667eea;
+    color: white;
+  }
+  
+  .empty-message {
+    text-align: center;
+    font-size: 1rem;
+    color: #fff;
+  }
+  

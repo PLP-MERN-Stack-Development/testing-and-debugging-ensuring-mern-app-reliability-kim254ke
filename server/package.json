@@ -4,7 +4,13 @@
   "description": "This assignment focuses on implementing comprehensive testing strategies for a MERN stack application, including unit testing, integration testing, and end-to-end testing, along with debugging techniques.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "test": "cd server && npm test",
+    "test:server": "cd server && npm test",
+    "test:client": "cd client && npm test",
+    "start": "node src/server.js",
+  "dev": "nodemon src/server.js",
+  "test:watch": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -22,6 +28,9 @@
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
-    "cypress": "^15.6.0"
+    "cypress": "^15.6.0",
+    "jest": "^30.2.0",
+    "mongodb-memory-server": "^10.3.0",
+    "supertest": "^7.1.4"
   }
 }
