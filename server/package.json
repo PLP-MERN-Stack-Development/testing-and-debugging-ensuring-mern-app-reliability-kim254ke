@@ -1,36 +1,36 @@
 {
-  "name": "testing-and-debugging-ensuring-mern-app-reliability-kim254ke",
+  "name": "server",
   "version": "1.0.0",
-  "description": "This assignment focuses on implementing comprehensive testing strategies for a MERN stack application, including unit testing, integration testing, and end-to-end testing, along with debugging techniques.",
-  "main": "index.js",
+  "description": "Server for MERN Todo App - Week 6 Testing & Debugging",
+  "main": "src/server.js",
+  "type": "module",
+  
+  
   "scripts": {
-    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
-    "test": "cd server && npm test",
-    "test:server": "cd server && npm test",
-    "test:client": "cd client && npm test",
+    "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-  "dev": "nodemon src/server.js",
-  "test:watch": "jest --watch"
+    "test": "NODE_ENV=test jest --config jest.config.cjs --passWithNoTests",
+    "test:watch": "NODE_ENV=test jest --config jest.config.cjs --watch",
+    "test:coverage": "NODE_ENV=test jest --config jest.config.cjs --coverage"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/PLP-MERN-Stack-Development/testing-and-debugging-ensuring-mern-app-reliability-kim254ke.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/PLP-MERN-Stack-Development/testing-and-debugging-ensuring-mern-app-reliability-kim254ke/issues"
-  },
-  "homepage": "https://github.com/PLP-MERN-Stack-Development/testing-and-debugging-ensuring-mern-app-reliability-kim254ke#readme",
   "dependencies": {
-    "axios": "^1.13.2"
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.1",
+    "mongoose": "^7.5.1"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1",
-    "cypress": "^15.6.0",
-    "jest": "^30.2.0",
-    "mongodb-memory-server": "^10.3.0",
-    "supertest": "^7.1.4"
-  }
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.22.9",
+    "babel-jest": "^29.6.4",
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^8.13.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.4"
+  },
+  "author": "Tony",
+  "license": "ISC"
 }

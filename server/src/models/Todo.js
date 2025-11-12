@@ -1,21 +1,21 @@
+// src/models/Todo.js
 import mongoose from "mongoose";
 
 const todoSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
-      trim: true,
-      minlength: 3,
-      maxlength: 100,
+      required: [true, "Title is required"],
+      minlength: [3, "Title must be at least 3 characters"],
+      trim: true  // Ensure the title is trimmed
     },
     description: { type: String, default: "" },
     priority: {
       type: String,
       enum: ["low", "medium", "high"],
-      default: "medium",
+      default: "medium"
     },
-    completed: { type: Boolean, default: false },
+    completed: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
@@ -34,4 +34,5 @@ todoSchema.statics.findIncomplete = function () {
   return this.find({ completed: false });
 };
 
-export default mongoose.model("Todo", todoSchema);
+// Prevent model overwriting in tests
+export default mongoose.models.Todo || mongoose.model("Todo", todoSchema);
