@@ -1,38 +1,20 @@
-// src/models/Todo.js
-import mongoose from "mongoose";
+// server/src/models/Todo.js
 
-const todoSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: [true, "Title is required"],
-      minlength: [3, "Title must be at least 3 characters"],
-      trim: true  // Ensure the title is trimmed
-    },
-    description: { type: String, default: "" },
-    priority: {
-      type: String,
-      enum: ["low", "medium", "high"],
-      default: "medium"
-    },
-    completed: { type: Boolean, default: false }
+const mongoose = require('mongoose');
+
+const TodoSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
   },
-  { timestamps: true }
-);
+  completed: {
+    type: Boolean,
+    default: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-// Instance method
-todoSchema.methods.toggleComplete = async function () {
-  this.completed = !this.completed;
-  await this.save();
-};
-
-// Static methods
-todoSchema.statics.findByPriority = function (priority) {
-  return this.find({ priority });
-};
-todoSchema.statics.findIncomplete = function () {
-  return this.find({ completed: false });
-};
-
-// Prevent model overwriting in tests
-export default mongoose.models.Todo || mongoose.model("Todo", todoSchema);
+module.exports = mongoose.model('Todo', TodoSchema);

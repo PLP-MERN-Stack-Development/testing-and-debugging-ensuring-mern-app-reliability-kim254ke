@@ -10,6 +10,7 @@ jest.mock('axios');
 describe('TodoApp Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
   });
 
   test('fetches and displays todos on mount', async () => {
