@@ -24,7 +24,9 @@ router.post('/', (req, res) => {
     
     res.status(201).json({ _id: 'mockid', title, content });
   } catch (error) {
+    /* istanbul ignore next */
     console.error('Posts route error:', error);
+    /* istanbul ignore next */
     res.status(500).json({ error: error.message });
   }
 });

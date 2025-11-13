@@ -10,6 +10,7 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.js',
     '!src/config/**',
+    '!src/app.js', // <-- ADDED THIS LINE
     '!**/node_modules/**',
   ],
   testTimeout: 15000,

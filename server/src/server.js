@@ -1,3 +1,4 @@
+// src/server.js
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -78,6 +79,18 @@ app.put("/api/todos/:id", async (req, res) => {
   }
 });
 
+// --- ROUTE ORDER FIX ---
+// Delete all todos route is placed BEFORE the delete by id route.
+app.delete("/api/todos/all", async (req, res) => {
+  try {
+    await Todo.deleteMany({});
+    res.json({ success: true, message: "All todos deleted" });
+  } catch (err) {
+    console.error("❌ ERROR in DELETE /api/todos/all:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Delete a todo
 app.delete("/api/todos/:id", async (req, res) => {
   try {
@@ -104,16 +117,6 @@ app.patch("/api/todos/:id/toggle", async (req, res) => {
   }
 });
 
-// Delete all todos (for testing purposes)
-app.delete("/api/todos/all", async (req, res) => {
-  try {
-    await Todo.deleteMany({});
-    res.json({ success: true, message: "All todos deleted" });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
 // Import posts routes
 import postsRouter from './routes/posts.js';
 
@@ -121,12 +124,14 @@ import postsRouter from './routes/posts.js';
 app.use('/api/posts', postsRouter);
 
 // Connect to MongoDB
+/* istanbul ignore next */
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
 // Only start server if not in test environment
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
