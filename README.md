@@ -1,87 +1,95 @@
-# Testing and Debugging MERN Applications
+# MERN Todo Application
 
-This assignment focuses on implementing comprehensive testing strategies for a MERN stack application, including unit testing, integration testing, and end-to-end testing, along with debugging techniques.
+A full-stack Todo application built with the MERN stack (MongoDB, Express, React, Node.js). This project demonstrates a complete CRUD (Create, Read, Update, Delete) workflow with a focus on modern development practices and comprehensive end-to-end testing.
 
-## Assignment Overview
+## Features
 
-You will:
-1. Set up testing environments for both client and server
-2. Write unit tests for React components and server functions
-3. Implement integration tests for API endpoints
-4. Create end-to-end tests for critical user flows
-5. Apply debugging techniques for common MERN stack issues
+-   ✅ Add new todos with title, description, and priority.
+-   📝 View a list of all todos.
+-   ✅ Mark todos as complete/incomplete.
+-   🔍 Filter todos by status (All, Active, Completed).
+-   ✏️ Edit existing todo details.
+-   🗑️ Delete todos.
+-   🔄 Data persistence across page reloads.
+-   ♿ Accessible UI with ARIA labels and keyboard navigation.
+-   🧪 Comprehensive E2E test suite using Cypress.
 
-## Project Structure
+## Tech Stack
 
-```
-mern-testing/
-├── client/                 # React front-end
-│   ├── src/                # React source code
-│   │   ├── components/     # React components
-│   │   ├── tests/          # Client-side tests
-│   │   │   ├── unit/       # Unit tests
-│   │   │   └── integration/ # Integration tests
-│   │   └── App.jsx         # Main application component
-│   └── cypress/            # End-to-end tests
-├── server/                 # Express.js back-end
-│   ├── src/                # Server source code
-│   │   ├── controllers/    # Route controllers
-│   │   ├── models/         # Mongoose models
-│   │   ├── routes/         # API routes
-│   │   └── middleware/     # Custom middleware
-│   └── tests/              # Server-side tests
-│       ├── unit/           # Unit tests
-│       └── integration/    # Integration tests
-├── jest.config.js          # Jest configuration
-└── package.json            # Project dependencies
-```
+-   **Frontend:** React, CSS
+-   **Backend:** Node.js, Express.js
+-   **Database:** MongoDB
+-   **Testing:** Cypress (for End-to-End testing)
 
-## Getting Started
+## Prerequisites
 
-1. Accept the GitHub Classroom assignment invitation
-2. Clone your personal repository that was created by GitHub Classroom
-3. Follow the setup instructions in the `Week6-Assignment.md` file
-4. Explore the starter code and existing tests
-5. Complete the tasks outlined in the assignment
+Before you begin, ensure you have the following installed on your machine:
+-   [Node.js and npm](https://nodejs.org/en/) (v14 or higher)
+-   [MongoDB](https://www.mongodb.com/try/download/community) (running locally)
+-   A code editor like [VS Code](https://code.visualstudio.com/)
 
-## Files Included
+## Setup and Installation
 
-- `Week6-Assignment.md`: Detailed assignment instructions
-- Starter code for a MERN application with basic test setup:
-  - Sample React components with test files
-  - Express routes with test files
-  - Jest and testing library configurations
-  - Example tests for reference
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/your-repo-name.git
+    cd your-repo-name
+    ```
 
-## Requirements
+2.  **Install dependencies:**
+    Install dependencies for both the backend and the frontend.
+    ```bash
+    # Install backend dependencies
+    npm install
 
-- Node.js (v18 or higher)
-- MongoDB (local installation or Atlas account)
-- npm or yarn
-- Basic understanding of testing concepts
+    # Install frontend dependencies
+    cd client
+    npm install
+    cd ..
+    ```
 
-## Testing Tools
+3.  **Set up environment variables:**
+    Create a `.env` file in the root directory and add your MongoDB connection string and other secrets.
+    ```
+    MONGO_URI=mongodb://localhost:27017/tododb
+    PORT=5000
+    ```
 
-- Jest: JavaScript testing framework
-- React Testing Library: Testing utilities for React
-- Supertest: HTTP assertions for API testing
-- Cypress/Playwright: End-to-end testing framework
-- MongoDB Memory Server: In-memory MongoDB for testing
+## Running the Application
 
-## Submission
+To run the application, you need to start both the backend server and the frontend development server.
 
-Your work will be automatically submitted when you push to your GitHub Classroom repository. Make sure to:
+1.  **Start the Backend Server:**
+    In your terminal, from the root directory, run:
+    ```bash
+    npm run server
+    ```
+    The backend API will be running on `http://localhost:5000`.
 
-1. Complete all required tests (unit, integration, and end-to-end)
-2. Achieve at least 70% code coverage for unit tests
-3. Document your testing strategy in the README.md
-4. Include screenshots of your test coverage reports
-5. Demonstrate debugging techniques in your code
+2.  **Start the Frontend Application:**
+    Open a **new terminal** and from the root directory, run:
+    ```bash
+    npm run client
+    ```
+    The frontend application will open in your browser at `http://localhost:3000`.
 
-## Resources
+## Running the Tests
 
-- [Jest Documentation](https://jestjs.io/docs/getting-started)
-- [React Testing Library Documentation](https://testing-library.com/docs/react-testing-library/intro/)
-- [Supertest Documentation](https://github.com/visionmedia/supertest)
-- [Cypress Documentation](https://docs.cypress.io/)
-- [MongoDB Testing Best Practices](https://www.mongodb.com/blog/post/mongodb-testing-best-practices) 
+This project uses Cypress for End-to-End (E2E) testing to ensure the application works as expected from a user's perspective.
+
+**Important:** Before running tests, make sure both your backend and frontend servers are running as described above.
+
+### Option 1: Interactive Mode (Recommended for Development)
+
+This opens the Cypress Test Runner UI, which allows you to see the tests run in real-time, debug failures, and interact with the application.
+
+```bash
+npx cypress open
+
+**This runs all tests from the command line without opening a browser window. It's faster and ideal for automated environments.
+
+# Run all E2E tests
+npx cypress run
+
+Run only the todo test suite
+npx cypress run --spec "cypress/e2e/todo.cy.js"
