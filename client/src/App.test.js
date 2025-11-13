@@ -4,27 +4,21 @@ import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import axios from 'axios';
 import App from './App';
 
-// Mock all axios methods
-jest.mock('axios', () => ({
-  get: jest.fn(),
-  post: jest.fn(),
-  delete: jest.fn(),
-  put: jest.fn(),
-  patch: jest.fn(),
-}));
+// Mock axios for this specific test file
+jest.mock('axios');
 
-const mockTodos = [
-  { _id: '1', title: 'Todo 1', completed: false },
-  { _id: '2', title: 'Todo 2', completed: true },
-];
+const mockResponse = {
+  data: [
+    { _id: '1', title: 'Todo 1', description: 'A description', priority: 'medium', completed: false },
+    { _id: '2', title: 'Todo 2', description: 'Another description', priority: 'high', completed: true },
+  ]
+};
 
 describe('App Component', () => {
   beforeEach(() => {
-    axios.get.mockResolvedValue({ data: { data: mockTodos } });
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
+    // Set the default mock for the initial fetch
+    axios.get.mockResolvedValue(mockResponse);
   });
 
   test('renders app header', () => {
@@ -35,9 +29,20 @@ describe('App Component', () => {
 
   test('fetches and displays todos', async () => {
     render(<App />);
-    await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
-    expect(screen.getByText('Todo 1')).toBeInTheDocument();
-    expect(screen.getByText('Todo 2')).toBeInTheDocument();
+    
+    // Wait for the loading to complete and todos to appear
+    await act(async () => {
+      jest.runAllTimers();
+    });
+    
+    await waitFor(() => {
+      expect(axios.get).toHaveBeenCalledTimes(1);
+    });
+    
+    await waitFor(() => {
+      expect(screen.getByText('Todo 1')).toBeInTheDocument();
+      expect(screen.getByText('Todo 2')).toBeInTheDocument();
+    }, { timeout: 3000 });
   });
 
   test('adds a new todo', async () => {
@@ -45,6 +50,12 @@ describe('App Component', () => {
     axios.post.mockResolvedValue({ data: { data: newTodo } });
 
     render(<App />);
+    
+    // Wait for initial todos to load
+    await act(async () => {
+      jest.runAllTimers();
+    });
+    
     await waitFor(() => screen.getByText('Todo 1'));
 
     await act(async () => {
@@ -53,6 +64,9 @@ describe('App Component', () => {
       });
       
       fireEvent.click(screen.getByText(/add todo/i));
+      
+      // Run timers to resolve the promise
+      jest.runAllTimers();
     });
 
     await waitFor(() => {
@@ -66,57 +80,78 @@ describe('App Component', () => {
       );
     });
     
-    // Wait for the UI to update
     await waitFor(() => {
       expect(screen.getByText('New Todo')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   test('deletes a todo', async () => {
     axios.delete.mockResolvedValue({});
 
     render(<App />);
+    
+    // Wait for initial todos to load
+    await act(async () => {
+      jest.runAllTimers();
+    });
+    
     await waitFor(() => screen.getByText('Todo 1'));
 
     await act(async () => {
       const deleteButtons = screen.getAllByText(/delete/i);
       fireEvent.click(deleteButtons[0]);
+      
+      // Run timers to resolve the promise
+      jest.runAllTimers();
     });
 
     await waitFor(() => expect(axios.delete).toHaveBeenCalledTimes(1));
     
-    // Wait for the UI to update
     await waitFor(() => {
       expect(screen.queryByText('Todo 1')).not.toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   test('toggles todo completion', async () => {
-    const toggledTodo = { ...mockTodos[0], completed: true };
+    const toggledTodo = { ...mockResponse.data[0], completed: true };
     axios.patch.mockResolvedValue({ data: { data: toggledTodo } });
 
     render(<App />);
+    
+    // Wait for initial todos to load
+    await act(async () => {
+      jest.runAllTimers();
+    });
+    
     await waitFor(() => screen.getByText('Todo 1'));
 
     await act(async () => {
       const checkboxes = screen.getAllByRole('checkbox');
       fireEvent.click(checkboxes[0]);
+      
+      // Run timers to resolve the promise
+      jest.runAllTimers();
     });
 
     await waitFor(() => expect(axios.patch).toHaveBeenCalledTimes(1));
     
-    // Wait for the UI to update
     await waitFor(() => {
       const checkboxes = screen.getAllByRole('checkbox');
       expect(checkboxes[0].checked).toBe(true);
-    });
+    }, { timeout: 3000 });
   });
 
   test('updates a todo title', async () => {
-    const updatedTodo = { ...mockTodos[0], title: 'Updated Todo', description: '', priority: 'medium' };
+    const updatedTodo = { ...mockResponse.data[0], title: 'Updated Todo' };
     axios.put.mockResolvedValue({ data: { data: updatedTodo } });
 
     render(<App />);
+    
+    // Wait for initial todos to load
+    await act(async () => {
+      jest.runAllTimers();
+    });
+    
     await waitFor(() => screen.getByText('Todo 1'));
 
     await act(async () => {
@@ -124,7 +159,6 @@ describe('App Component', () => {
       fireEvent.click(editButtons[0]);
     });
 
-    // Wait for the edit form to appear
     await waitFor(() => {
       expect(screen.getByPlaceholderText('Title')).toBeInTheDocument();
     });
@@ -135,6 +169,9 @@ describe('App Component', () => {
 
       const saveButton = screen.getByText(/save/i);
       fireEvent.click(saveButton);
+      
+      // Run timers to resolve the promise
+      jest.runAllTimers();
     });
 
     await waitFor(() => {
@@ -142,24 +179,30 @@ describe('App Component', () => {
         expect.stringContaining('/todos/1'),
         expect.objectContaining({
           title: 'Updated Todo',
-          description: '',
+          description: 'A description',
           priority: 'medium',
         })
       );
     });
 
-    // Wait for the UI to update
     await waitFor(() => {
       expect(screen.getByText('Updated Todo')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   test('filters todos', async () => {
     render(<App />);
+    
+    // Wait for initial todos to load
+    await act(async () => {
+      jest.runAllTimers();
+    });
+    
     await waitFor(() => screen.getByText('Todo 1'));
 
     await act(async () => {
       fireEvent.click(screen.getByText(/completed/i));
+      jest.runAllTimers();
     });
 
     await waitFor(() => {
@@ -168,6 +211,7 @@ describe('App Component', () => {
 
     await act(async () => {
       fireEvent.click(screen.getByText(/active/i));
+      jest.runAllTimers();
     });
 
     await waitFor(() => {
@@ -176,11 +220,12 @@ describe('App Component', () => {
 
     await act(async () => {
       fireEvent.click(screen.getByText(/^all$/i));
+      jest.runAllTimers();
     });
 
     await waitFor(() => {
-      const lastCall = axios.get.mock.calls[axios.get.mock.calls.length - 1][0];
-      expect(lastCall).toMatch(/\/todos$/);
+      // Use a more robust Jest matcher
+      expect(axios.get).toHaveBeenLastCalledWith(expect.stringMatching(/\/todos$/));
     });
   });
 });

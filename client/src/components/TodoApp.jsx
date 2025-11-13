@@ -1,23 +1,18 @@
 // src/components/TodoApp.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // 1. Import useCallback
 import axios from 'axios';
+import AddTodo from './AddTodo';
+import TodoList from './TodoList';
 
 const API_URL = 'http://localhost:5000/api/todos';
 
 export default function TodoApp() {
   const [todos, setTodos] = useState([]);
-  const [newTodo, setNewTodo] = useState({ title: '', description: '', priority: 'medium' });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, active, completed
-  const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ title: '', description: '', priority: 'medium' });
 
-  // Fetch todos on mount
-  useEffect(() => {
-    fetchTodos();
-  }, [filter]);
-
-  const fetchTodos = async () => {
+  // 2. Wrap fetchTodos in useCallback
+  const fetchTodos = useCallback(async () => {
     try {
       setLoading(true);
       let url = API_URL;
@@ -25,7 +20,6 @@ export default function TodoApp() {
       if (filter === 'completed') url += '?completed=true';
       
       const response = await axios.get(url);
-      // Handle different response structures
       const todosData = response.data.data || response.data || [];
       setTodos(Array.isArray(todosData) ? todosData : []);
     } catch (err) {
@@ -34,159 +28,96 @@ export default function TodoApp() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]); // 3. Add any dependencies fetchTodos uses from outside itself (in this case, 'filter')
 
-  // Add new todo
-  const addTodo = async () => {
-    if (!newTodo.title.trim()) return;
-    
-    // Create a local todo immediately for better UX
-    const localTodo = { 
-      _id: Date.now().toString(), 
-      title: newTodo.title, 
-      description: newTodo.description,
-      priority: newTodo.priority,
-      completed: false 
-    };
-    
-    // Update UI immediately
-    setTodos(prev => [...prev, localTodo]);
-    setNewTodo({ title: '', description: '', priority: 'medium' });
-    
+  // 4. Now you can safely add fetchTodos to the useEffect dependency array
+  useEffect(() => {
+    fetchTodos();
+  }, [fetchTodos]);
+
+  // ... the rest of your component (addTodo, toggleTodo, etc.) remains the same
+  const addTodo = async (todoData) => {
     try {
-      const response = await axios.post(API_URL, newTodo);
+      const response = await axios.post(API_URL, todoData);
       const addedTodo = response.data.data || response.data;
-      if (addedTodo) {
-        // Replace the local todo with the server one
-        setTodos(prev => prev.map(t => t._id === localTodo._id ? addedTodo : t));
-      }
+      setTodos(prev => [...prev, addedTodo]);
     } catch (err) {
-      console.error('Failed to add todo', err);
-      // Keep the local todo even if API fails
+      throw new Error('Failed to add todo');
     }
   };
 
-  // Toggle todo completion
-  const toggleTodo = async (id, completed) => {
-    // Update UI immediately
-    setTodos(prev => prev.map(t => t._id === id ? { ...t, completed } : t));
+  const toggleTodo = async (id) => {
+    const todo = todos.find(t => t._id === id);
+    if (!todo) return;
     
+    const newCompletedStatus = !todo.completed;
+    setTodos(prev => prev.map(t => t._id === id ? { ...t, completed: newCompletedStatus } : t));
+
     try {
-      const response = await axios.patch(`${API_URL}/${id}`, { completed });
-      const updatedTodo = response.data.data || response.data;
-      if (updatedTodo) {
-        // Update with server response
-        setTodos(prev => prev.map(t => t._id === id ? updatedTodo : t));
-      }
+      await axios.patch(`${API_URL}/${id}/toggle`, { completed: newCompletedStatus });
     } catch (err) {
       console.error('Failed to toggle todo', err);
-      // Keep the local state even if API fails
+      setTodos(prev => prev.map(t => t._id === id ? { ...t, completed: !newCompletedStatus } : t));
     }
   };
 
-  // Delete todo
   const deleteTodo = async (id) => {
-    // Update UI immediately
+    const originalTodos = todos;
     setTodos(prev => prev.filter(t => t._id !== id));
-    
+
     try {
       await axios.delete(`${API_URL}/${id}`);
     } catch (err) {
       console.error('Failed to delete todo', err);
-      // Keep the local state even if API fails
+      setTodos(originalTodos);
     }
   };
 
-  // Start editing
-  const startEdit = (todo) => {
-    setEditingId(todo._id);
-    setEditForm({ title: todo.title, description: todo.description || '', priority: todo.priority || 'medium' });
-  };
-
-  // Save edit
-  const saveEdit = async () => {
-    // Update UI immediately
-    setTodos(prev => prev.map(t => t._id === editingId ? { ...t, ...editForm } : t));
-    setEditingId(null);
-    
+  const updateTodo = async (id, updatedData) => {
     try {
-      const response = await axios.put(`${API_URL}/${editingId}`, editForm);
+      const response = await axios.put(`${API_URL}/${id}`, updatedData);
       const updatedTodo = response.data.data || response.data;
-      if (updatedTodo) {
-        // Update with server response
-        setTodos(prev => prev.map(t => t._id === editingId ? updatedTodo : t));
-      }
+      setTodos(prev => prev.map(t => t._id === id ? updatedTodo : t));
     } catch (err) {
       console.error('Failed to update todo', err);
-      // Keep the local state even if API fails
     }
   };
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <h2>Todo List</h2>
+    <main className="App-main">
+      <AddTodo onAdd={addTodo} />
 
-      {/* Add Todo Form */}
-      <div style={{ marginBottom: '1rem' }}>
-        <input
-          value={newTodo.title}
-          onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
-          placeholder="Enter todo title"
-        />
-        <button onClick={addTodo} disabled={!newTodo.title.trim()}>
-          Add Todo
+      <div className="filter-buttons">
+        <button 
+          className={filter === 'all' ? 'active' : ''} 
+          onClick={() => setFilter('all')}
+        >
+          All
+        </button>
+        <button 
+          className={filter === 'active' ? 'active' : ''} 
+          onClick={() => setFilter('active')}
+        >
+          Active
+        </button>
+        <button 
+          className={filter === 'completed' ? 'active' : ''} 
+          onClick={() => setFilter('completed')}
+        >
+          Completed
         </button>
       </div>
 
-      {/* Filter Buttons */}
-      <div style={{ marginBottom: '1rem' }}>
-        <button onClick={() => setFilter('all')}>All</button>
-        <button onClick={() => setFilter('active')}>Active</button>
-        <button onClick={() => setFilter('completed')}>Completed</button>
-      </div>
-
-      {/* Todo List */}
       {loading ? (
-        <p>Loading...</p>
-      ) : todos.length === 0 ? (
-        <p>No todos yet.</p>
+        <div className="loading">Loading...</div>
       ) : (
-        <ul>
-          {todos.map((todo) => (
-            <li key={todo._id} style={{ marginBottom: '0.5rem' }}>
-              {editingId === todo._id ? (
-                // Edit mode
-                <div>
-                  <input
-                    placeholder="Title"
-                    value={editForm.title}
-                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                  />
-                  <button onClick={saveEdit}>Save</button>
-                </div>
-              ) : (
-                // View mode
-                <div>
-                  <label style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
-                    <input
-                      type="checkbox"
-                      checked={todo.completed || false}
-                      onChange={() => toggleTodo(todo._id, !todo.completed)}
-                    />
-                    {todo.title}
-                  </label>
-                  <button onClick={() => startEdit(todo)} style={{ marginLeft: '0.5rem' }}>
-                    Edit
-                  </button>
-                  <button onClick={() => deleteTodo(todo._id)} style={{ marginLeft: '0.5rem' }}>
-                    Delete
-                  </button>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+        <TodoList 
+          todos={todos} 
+          onDelete={deleteTodo} 
+          onUpdate={updateTodo} 
+          onToggle={toggleTodo} 
+        />
       )}
-    </div>
+    </main>
   );
 }
